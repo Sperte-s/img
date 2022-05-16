@@ -1,19 +1,66 @@
-name: Node.js Package
-# 监测图床分支，2020年10月后github新建仓库默认分支改为main，记得更改
+name: Publish to NPM
+
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
-  publish-npm:
+  publish-to-npm:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - name: Checkout release branch code
+        uses: actions/checkout@v2
         with:
-          node-version: "12.x"
-          registry-url: https://registry.npmjs.org/
-      - run: npm publish
+          fetch-depth: 1
+
+      - name: Get yarn cache
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Set Node.js
+        uses: actions/setup-node@master
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name:  'Automated Version Bump'
+        uses:  'phips28/gh-action-bump-version@master'
         env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          default: prerelease
+          rc-wording:     'RELEASE,alpha,PicX'
+
+      - name: Set name
+        run: |
+          git config --global user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git config --global user.name github-actions[bot]
+      # - name: 读取生成时间戳作为版本号
+      #   id: version
+      #   uses: ashley-taylor/read-json-property-action@v1.0
+      #   with:
+      #     path: ./dist/friend.json
+      #     property: date
+
+
+      - name: 发布npm包
+        if: env.NPM_TOKEN && env.NPM_NAME
+        run: |
+          node index.js
+          npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          npm publish
+        env:
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+          NPM_NAME: ${{ secrets.NPM_NAME }}
