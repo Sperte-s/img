@@ -14,6 +14,13 @@ jobs:
         with:
           node-version: "12.x"
           registry-url: https://registry.npmjs.org/
+      - name: 读取生成时间戳作为版本号
+        id: version
+        uses: ashley-taylor/read-json-property-action@v1.0
+        with:
+          path: ./dist/friend.json
+          property: date
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+
