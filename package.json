@@ -1,0 +1,22 @@
+{
+  "name": "sperte-img",
+  "version": "1.0.0",
+  "description": "静态资源仓库",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sperte-s/img.git"
+  },
+  "keywords": [
+    "图床"
+  ],
+  "author": "sperte",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sperte-s/img/issues"
+  },
+  "homepage": "https://github.com/Sperte-s/img#readme"
+}
