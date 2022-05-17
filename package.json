@@ -1,6 +1,6 @@
 {
   "name": "sperte-img",
-  "version": "1.0.3003",
+  "version": "1.0.3004",
   "description": "静态资源仓库",
   "main": "index.js",
   "scripts": {
